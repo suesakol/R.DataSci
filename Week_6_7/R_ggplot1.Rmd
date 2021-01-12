@@ -1,0 +1,522 @@
+---
+title: "R: Visualization"
+author: "Sakol Suethanapornkul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  beamer_presentation:
+    theme: Sakol
+    keep_tex: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+
+## Preamble {.t}
+
+Thus far, we have looked at several verbs for data manipulation. In this part, we are going to shift gear.
+
+&nbsp;
+
+We will talk about data visualization. Specifically, we will look at ``ggplot2``, which is part of ``tidyverse``.
+
+``` {r eval = TRUE, warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+&nbsp;
+
+\textcolor{gured}{EXERCISE}: What purpose does data visualization serve? How can data visualization be effective?
+
+
+
+## Preamble {.t}
+
+Visualization helps us explore data and learn of any systematic patterns between variables that might otherwise go unnoticed. 
+
+&nbsp;
+
+Sometimes, these patterns may help us generate new hypotheses or shed new light on existing relationships. 
+
+
+
+## ``ggplot2``: Introduction {.t}
+
+We will use examples and exercises from this book (3rd edition available online):
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "60%"}
+knitr::include_graphics("Figure/ggplot.png")
+```
+
+Credit: [ggplot2](https://ggplot2-book.org)
+
+
+
+## ``ggplot2``: Introduction {.t}
+
+A challenging thing about ``ggplot2`` isn't its codes. Rather, it is the understanding that graphics can be stitched from independent components insofar as grammar is concerned.
+
+&nbsp;
+
+
+If this part sounds confusing to you, think about what painters need to do to make one painting...
+
+<!-- (Type of paint, type of base (paper, canvass, walls, etc.), then layout & perspective such and such) -->
+
+
+
+## ``ggplot2``: Introduction {.t}
+
+Girl with a Pearl Earring (oil on canvas)
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "60%"}
+knitr::include_graphics("Figure/Pearl.png")
+```
+
+Credit: [Wikipedia](https://en.wikipedia.org/wiki/Girl_with_a_Pearl_Earring)
+
+
+
+## ``ggplot2``: Introduction {.t}
+
+Under the hoods, paintings have several underlying layers. This is true of your graphics, and ``ggplot2`` utilizes this notion of layers to create complex visualizations.
+
+&nbsp;
+
+Now that the notion of layers is revealed, you might wonder how we can create graphics with ``ggplot2``?
+
+
+
+## Basic steps {.t}
+
+**Step 1**: You begin by mapping data to aesthetic attributes. This involves stating (1) what data you want to visualize and (2) which variables in your data frame you want to describe.
+
+
+
+## Basic steps {.t}
+
+**Step 1**: You begin by mapping data to aesthetic attributes. This involves stating (1) \textcolor{gured}{what data you want to visualize} and (2) which variables in your data frame you want to describe.
+
+``` {r}
+ggplot(data = mpg, ...
+       )
+```
+
+\textcolor{gured}{data = mpg} maps the data frame ``mpg`` to data.
+
+&nbsp;
+
+\textcolor{gured}{EXERCISE}: At this stage, what do we get if we run this code?
+
+
+
+## Basic steps {.t}
+
+**Step 1**: You begin by mapping data to aesthetic attributes. This involves stating (1) what data you want to visualize and (2) \textcolor{gured}{which variables in your data frame you want to describe}.
+
+``` {r}
+ggplot(data = mpg, 
+       mapping = aes(x = displ, y = cty)
+       )
+```
+
+\textcolor{gured}{aes(x = displ, y = cty)} maps "engine size" to x position and "city driving" to y position.
+
+
+
+## Basic steps {.t}
+
+**Step 1**: You begin by mapping data to aesthetic attributes. This involves stating (1) what data you want to visualize and (2) which variables in your data frame you want to describe.
+
+``` {r}
+ggplot(data = mpg, 
+       mapping = aes(x = displ, y = cty)
+       )
+```
+
+or:
+
+``` {r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = cty)
+         )
+```
+
+
+
+## Basic steps {.t}
+
+**Step 1**: You begin by mapping data to aesthetic attributes. This involves stating (1) what data you want to visualize and (2) which variables in your data frame you want to describe.
+
+``` {r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = cty)
+         )
+```
+
+or:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(displ, cty)
+         )
+```
+
+
+
+## Basic steps {.t}
+
+**Step 2**: After you have set up a "frame," you add geometric objects (points, bars, lines, etc.) onto it layer by layer. You'll need at least one layer to complete a plot.
+
+
+
+## Basic steps {.t}
+
+**Step 2**: After you have set up a "frame," you add geometric objects (points, bars, lines, etc.) onto it layer by layer. You'll need at least one layer to complete a plot.
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point()
+```
+
+\textcolor{gured}{geom\_point()} adds "points" as geometric objects to the frame.
+
+
+
+## Basic steps {.t}
+
+**Step 3**: Now that you have your plot, you can change its scales, break it up into subsets, or alter its look and feel. For example,
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = class) ) +
+  labs(x = "Engine size", y = "Miles per gallon") +
+  facet_wrap(~ manufacturer) +
+  theme_bw()
+```
+
+
+
+## Basic steps {.t}
+
+**Step 4**: Finally, you can save your graphic to your working directory with:
+
+``` {r}
+ggsave("scatterplot.png", dpi = 300)
+```
+
+
+
+## Basic steps {.t}
+
+To plot with ``ggplot2``, you must have data, aesthetic mappings, and geoms.
+
+``` {r}
+ggplot(data    = ...,
+       mapping = aes(x = ..., y = ...) ) +
+  geom_point()
+```
+
+
+
+## Exercise {.t}
+
+Now that you know a little bit about a ``ggplot2`` call, describe the data, aesthetics mappings, and layers used for each of the following plots:
+
+``` {r}
+ggplot(mpg, aes(x = cty, y = hwy) ) + 
+  geom_point()
+
+ggplot(diamonds, aes(x = carat, y = price) ) + 
+  geom_point()
+
+ggplot(economics, aes(x = date, y = unemploy) ) + 
+  geom_line()
+
+ggplot(mpg, aes(x = cty) ) + geom_histogram()
+```
+
+
+
+## Let's pause here... {.t}
+
+``ggplot2`` contains over 30+ geoms for different kinds of plots (see [this site](https://ggplot2.tidyverse.org/reference/)), not to mention a few hundred other functions!
+
+&nbsp;
+
+We will focus on a fraction of these geoms to make sure we can transfer our knowledge to other things we can't cover in this lecture!
+
+
+
+## ``geom_point()`` {.t}
+
+Previously, we saw this:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point()
+```
+
+With ``geom_point()``, **individual observations** are plotted:
+
+
+
+## ``geom_point()`` {.t}
+
+We can add additional information to aesthetic attributes inside ``aes()``:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty, color = drv) ) +
+  geom_point()
+```
+
+``geom_point()`` understands ``color`` (or ``colour``), ``size``, and ``shape`` aesthetics. So, let's try this one:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty, size = drv) ) +
+  geom_point()
+```
+
+
+
+## ``geom_point()`` {.t}
+
+You can specify ``aes()`` at the top level of the plot (with ``ggplot()``) or for each specific geom:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty, color = drv) ) +
+  geom_point()
+```
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) )
+```
+
+You'll see why this matters in a few slides!
+
+
+
+## ``geom_point()`` {.t}
+
+\textcolor{gured}{EXERCISE}: What's wrong with the following code?
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty), color = drv) +
+  geom_point()
+```
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty, color = "drv") ) +
+  geom_point()
+```
+
+
+
+## ``geom_point()`` {.t}
+
+For scatterplots with overlapping points, you can add ``alpha`` to make points more or less transparent:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv), alpha = 0.4)
+```
+
+Notice where ``alpha = 0.4`` lands inside ``geom_point()``. Contrast the previous code with this one, where ``alpha`` is inside ``aes()``:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv, 
+                 alpha = 0.4) )
+```
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+Recall that in ``ggplot2``, different components can be combined layer by layer. This means we can stack one layer on top of another to create complex graphics!
+
+&nbsp;
+
+Let's say we want to focus only on cars made by Ford.
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+We can do that with ``filter()``:
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford")
+```
+
+\textcolor{gured}{EXERCISE}: Now that we have only rows of cars made by Ford, what should we do next?
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+We pipe this data set to ``ggplot()``:
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>% 
+  ggplot(aes(x = displ, y = cty)
+         ) +
+  geom_point()
+```
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+And if we want to label each point with text, we use ``geom_text()``:
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>% 
+  ggplot(aes(x = displ, y = cty)
+         ) +
+  geom_point() +
+  geom_text(aes(label = model) ) #label required
+```
+
+Check [this site](https://ggplot2.tidyverse.org/reference/geom_text.html) for more information about text placement (``nudge_x`` and ``nudge_y``).
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+Previously, we discussed where aesthetic attributes can be placed:
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>%  
+  ggplot(aes(x = displ, y = cty, color = drv) ) +
+  geom_point()
+```
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) )
+```
+
+However, we couldn't see any difference with these two code chunks.
+
+
+
+## Another layer: ``geom_text()`` {.t}
+
+Now with another layer added, where attributes are does matter:
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>% 
+  ggplot(aes(x = displ, y = cty, color = drv) ) +
+  geom_point() +
+  geom_text(aes(label = model) )
+```
+
+``` {r}
+mpg %>% 
+  filter(manufacturer == "ford") %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) ) +
+  geom_text(aes(label = model) )
+```
+
+Aesthetic attributes inside ``ggplot()`` are passed down to all geoms.
+
+
+
+## Another layer: ``geom_smooth()`` {.t}
+
+In many cases, we may want to fit a line that shows a trend in the data. That can be achieved with ``geom_smooth()``
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) ) +
+  geom_smooth()
+```
+
+
+
+## Another layer: ``geom_smooth()`` {.t}
+
+we can specify a function to use with ``method`` and ``formula``: 
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) ) +
+  geom_smooth(method = lm, formula = y ~ x,
+              se = FALSE
+              )
+```
+
+You can try:
+
+``` {r}
+geom_smooth(method = lm, formula = y ~ exp(x), 
+            se = FALSE )
+```
+
+
+
+## Another layer: ``geom_smooth()`` {.t}
+
+Again, where aesthetic attributes are matters:
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty) ) +
+  geom_point(aes(color = drv) ) +
+  geom_smooth(method = lm, se = FALSE)
+```
+
+``` {r}
+mpg %>% 
+  ggplot(aes(x = displ, y = cty, color = drv) ) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE)
+```
+
+
+
+## Wrap-up {.t}
+
+With ``ggplot2``, we can explore data in myriad ways. So far, we have looked at:
+
+``` {r}
+ggplot(data    = ..., 
+       mapping = aes(x = .... y = ...)
+       ) +
+  geom_point(mapping = aes(color = ..., 
+                           size  = ..., 
+                           shape = ... )
+             ) +
+  geom_text(mapping  = aes(label  = ... ) 
+            ) + #or
+  geom_smooth(method   = ..., 
+              formula  = ..., 
+              se       = FALSE
+              )
+```
