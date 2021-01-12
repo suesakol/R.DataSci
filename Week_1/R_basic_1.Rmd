@@ -1,0 +1,393 @@
+---
+title: "R: Introduction"
+author: "Sakol Suethanapornkul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  beamer_presentation:
+    theme: Sakol
+    keep_tex: true
+urlcolor: blue
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+## Quiz {.t}
+
+Use the following vectors to answer the questions below:
+
+``` {r echo = TRUE, eval = FALSE}
+scores <- c(3, 12, 8, 2, 4, 11, 15, 19, 3, 7, 6, 9)
+
+answer <- c("Yes", "No", "Yes", "Yes", "No", "Yes", 
+            "No", "No", "No")
+```
+
+[1] Check if the values of ``scores`` exceed 10:
+
+[2] Calculate the mean of ``scores``:
+
+[3] Convert the values in ``answer`` to numbers (Y = 1; N = 0):
+
+
+
+## Quiz {.t}
+
+``` {r echo = FALSE}
+dat <- data.frame(Score  = round(rnorm(n = 30, mean = 30, sd = 5), digits = 0), 
+                  Gender = sample(c("male", "female"), size = 30, replace = TRUE),
+                  Class  = sample(c("A", "B", "C"), size = 30, replace = TRUE))
+```
+
+Use the following dataframe to answer the following questions:
+
+``` {r}
+head(dat, n = 8)
+```
+
+[4] Find scores from female students
+
+[5] Find students from class C only
+
+
+
+## Introduction {.t}
+
+We will use quite a lot of materials from this book:
+
+``` {r echo = FALSE, fig.align = "center", out.height = "60%"}
+knitr::include_graphics("Figure/Rbook.png")
+```
+
+(Image credit: Amazon.com)
+
+
+## Introduction {.t}
+
+* What is R?
+  + R is a language and environment for **statistical computing and graphics** [(r-project.org)](https://www.r-project.org/about.html)
+  
+  + R is a **programming language** and free software environment for statistical computing and graphics [(Wikipedia)](https://en.wikipedia.org/wiki/R_(programming_language))
+
+
+
+## Introduction {.t}
+
+* What is R?
+  + R is a language and environment for **statistical computing and graphics** [(r-project.org)](https://www.r-project.org/about.html)
+  
+  + R is a **programming language** and free software environment for statistical computing and graphics [(Wikipedia)](https://en.wikipedia.org/wiki/R_(programming_language))
+
+
+* Why should I learn R?
+  + With R, we can turn raw data into understanding, insight, and knowledge [(R for Data Science)](https://r4ds.had.co.nz/introduction.html)
+  
+  + R is an open-source software, which means it is absolutely free
+  
+  + R works across different platforms (Windows, Mac, Linux)
+
+
+
+## Installing R {.t}
+
+* Visit [Comprehensive R Archive Network (CRAN)]((https://cran.r-project.org/mirrors.html)) to download R 
+
+* We must have R installed for R Studio to work
+
+
+
+## What is RStudio? {.t}
+
+- RStudio is an integrated development environment (IDE) for R
+
+- RStudio is user-friendly, making it easier for us to interact with R with things like drop-down menus, etc.
+
+- RStudio can be downloaded from [this site](https://rstudio.com/products/rstudio/download/)
+
+
+
+## RStudio {.t}
+
+When we start RStudio, this is what we see:
+
+``` {r echo = FALSE, fig.align = "center", out.height = "70%"}
+knitr::include_graphics("Figure/RStudio.png")
+```
+
+
+
+
+
+# Part I
+
+## Part I: Basic Math {.t}
+
+Four basic arithmetic operators:
+
+* addition (+), subtraction (-), division (/), and multiplication (*)
+
+``` {r echo = TRUE, eval = FALSE}
+5 + 4 - 2
+5 - 4 + 2
+
+5 + 4 * 2
+5 / 4 + 2
+```
+
+
+
+## Part I: Basic Math {.t}
+
+The order of operations is ***PEMDAS***: Use parenthesis & space to make clear the order
+
+``` {r echo = TRUE, eval = FALSE}
+(5 + 4) * 2
+(5 + 4) * (2 + 5)
+
+(5 + (4 / 2)) + (2 * 3)
+```
+
+
+
+## Part I: Basic Math {.t}
+
+\textcolor{gured}{EXERCISE}: What are these two symbols for: ^ and %%? 
+
+``` {r echo = TRUE, eval = FALSE}
+2 ^ 3
+3 ^ 4
+
+5 %% 2
+8 %% 3
+```
+
+
+
+## Part I: Basic Math {.t}
+
+\textcolor{gured}{ANSWER}: ^ (raise x to the power of y) and %% (returns remainder of division)
+
+``` {r echo = TRUE, eval = FALSE}
+2 ^ 3    # 2 * 2 * 2
+3 ^ 4    # 3 * 3 * 3 * 3
+
+5 %% 2   # 5 / 2 -->  4 + 1 / 2 
+8 %% 3
+```
+
+
+
+## Part I: More math {.t}
+
+There are a few other functions, which we will return to later on:
+
+``` {r echo = TRUE, eval = FALSE}
+sum()
+mean()
+sd()
+
+min()
+max()
+
+log()
+sqrt()
+exp() 
+```
+
+
+
+
+
+# Part II
+
+## Part II: Vector & Assignment {.t}
+
+Vectors are the most basic data objects in R:
+
+``` {r echo = TRUE}
+numbers <- c(1, 3, 5, 8, 4, 9, 2)
+names   <- c("Jack", "James", "Jill", "Alix")
+answers <- c(TRUE, FALSE, TRUE, TRUE, TRUE, FALSE) 
+```
+
+NOTE: 
+
+* ``<-`` is an assignment symbol; shortcut =  **Option + minus**
+* ``c()`` is short for combine
+
+When we create a vector, we tell R that the name ``numbers`` refers to an object, which is ``c(1, 3, 5, 8, 4, 9, 2)``
+
+
+## Part II: Vector & Assignment {.t}
+
+We can use a colon operator (:) to create sequences
+
+``` {r echo = TRUE}
+num1  <- 1:10
+num2  <- c(1:5, c(12, 16, 19), 30:40)
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+For now, we will focus on numeric vectors (numbers are doubles by default\footnote{Doubles are floating-point numbers and thus are approximations}).
+
+``` {r echo = TRUE}
+num1  <- c(1, 4, 12, 8, 6, 5) 
+num2  <- c(2, 5, 9, 11, 2, 3)
+```
+
+\textcolor{gured}{EXERCISE}: What will happen when ``num1 + num2``?
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{ANSWER}: Arithmetic operations in R are vectorized (i.e., operating on a vector of elements):
+
+``` {r echo = TRUE}
+num1
+
+num2
+
+num1 + num2
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{EXERCISE}: What will happen if we sum these two vectors together?
+
+``` {r echo = TRUE}
+num1  <- c(11, 17, 23, 25, 26, 19)
+num2  <- c(6, 13)
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{ANSWER}: R uses a recycling rule: a shorter vector is expanded to be of the same length as a longer one
+
+``` {r echo = TRUE}
+num1
+
+num2
+
+num1 + num2
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{EXERCISE}: What will happen in this case?
+
+``` {r echo = TRUE, eval = FALSE, warning = FALSE}
+num1  <- c(11, 17, 23, 25, 26, 19, 21)
+num2  <- c(6, 13)
+
+num1 + num2
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+Two key properties of vectors: *type* and *length*
+
+``` {r echo = TRUE, eval = FALSE}
+nums  <- c(3, 5, 11, 13)
+
+typeof(nums)
+length(nums)
+```
+
+We will get to use one of the built-in functions, ``length()``, in many different scenarios.
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{EXERCISE}: How many kinds of values can numeric vectors take?
+
+``` {r echo = TRUE, eval = FALSE}
+nums  <- c(-2, 0, 2, 4, NA)
+
+nums/2
+
+nums/0
+```
+
+
+
+
+## Part II: Numeric Vectors {.t}
+
+Why are we wasting our time on numeric vectors? Well, because they are useful if we want to talk about **comparison operators** in R:
+
+* == (equal), != (not equal), >, >=, <, <=
+
+We can check if elements inside a vector meet certain conditions
+
+``` {r echo = TRUE, eval = FALSE}
+nums  <- c(2, 4, 7, 9, 11, NA)
+
+nums  == 11
+nums  != 11
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{EXERCISE}: What do you think are the answers to the following codes:
+
+``` {r echo = TRUE, eval = FALSE}
+nums  <  9
+nums  <= 9
+```
+
+We can apply these operators to solve some interesting problems:
+
+``` {r echo = TRUE, eval = FALSE}
+(nums %% 2) == 0
+(nums %% 2) != 0
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+This whole comparison operations will be of limited use if we have to conduct each "test" one by one. But luckily:
+
+``` {r echo = TRUE, eval = FALSE}
+nums >  5  &  nums <  10
+nums <= 7  |  nums >  10
+nums <= 7  |  nums != 11
+nums <= 10 & !(nums %% 2 == 0)
+```
+
+
+
+## Part II: Numeric Vectors {.t}
+
+\textcolor{gured}{EXERCISE}: What do we get from performing these operations? What does R return?
+
+``` {r echo = TRUE, eval = FALSE}
+nums <- c(11, 6, 18, 21, 24, 18, 5, 9, 14)
+nums >= 10
+```
+
+Well, you may find this a bit more familiar:
+
+``` {r echo = TRUE, eval = FALSE}
+test <- nums >= 10
+typeof(test)
+```
+
