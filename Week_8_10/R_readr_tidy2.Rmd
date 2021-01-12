@@ -1,0 +1,573 @@
+---
+title: "R: Tidy Data & Data Import 2"
+author: "Sakol Suethanapornkul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  beamer_presentation:
+    theme: Sakol
+    keep_tex: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+
+## Quiz {.t}
+
+| Import Item.csv file into R. Some things you need to consider:
+
+| [1] The file doesn't contain column names;
+
+| [2] The first column, which looks like IDs, should be treated as 
+|     characters;
+
+| [3] The rest should be doubles. 
+
+
+
+## Answers {.t}
+
+Here are two possible options to import Item.csv:
+
+``` {r eval = TRUE, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+``` {r}
+library(tidyverse)
+
+item <- read_csv(file      = "./Data/Item.csv", 
+                 col_names = FALSE,
+                 col_types = cols(
+                   .default = col_double(),
+                   X1       = col_character()
+                   )
+                 )
+```
+
+
+
+## Answers {.t}
+
+Here are two possible options to import Item.csv:
+
+``` {r}
+item <- read_delim(file      = "./Data/Item.csv", 
+                   delim     = ",", 
+                   col_names = FALSE,
+                   col_types = cols(
+                     .default = col_double(),
+                     X1       = col_character()
+                   )
+                 )
+```
+
+**NOTE**: You can specify column names by providing a vector of column names to ``col_names``.
+
+
+
+## Answers {.t}
+
+Here is an example:
+
+``` {r}
+column <- c("id", 
+            "i1_1", "i1_2", "i1_3", "i1_4",
+            "i2_1", "i2_2", "i2_3", "i2_4",
+            "i3_1", "i3_2", "i3_3", "i3_4",
+            "i4_1", "i4_2", "i4_3", "i4_4",
+            "i5_1", "i5_2", "i5_3", "i5_4")
+
+item <- read_csv(file      = "./Data/Item.csv",
+                 col_names = column, 
+                 col_types = cols(
+                     .default = col_double(),
+                     id       = col_character()
+                     ) 
+                 )
+```
+
+
+
+## Recap {.t}
+
+Principles of tidy data:
+
+- Each variable must have its own column;
+- Each observation must have its own row; and
+- Each value must have its own cell.
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "30%", out.width = "\\textwidth"}
+knitr::include_graphics("Figure/tidy1.png")
+```
+
+Credit: [R for Data Science](https://r4ds.had.co.nz/tidy-data.html)
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+\textcolor{gured}{EXERCISE}: Let's take a close look at the data frame `item`. Is it tidy? Why or why not?
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+\textcolor{gured}{ANSWER}: The answer is no. 
+
+&nbsp;
+
+Perhaps the biggest problem in `item` is the fact that one variable takes up more than one column.
+
+&nbsp;
+
+Luckily, we can "tidy" this data frame with two functions: ``pivot_longer()`` and ``pivot_wider()``
+
+&nbsp;
+
+**NOTE**: You may have seen `gather()` and `spread()`. These two are now superseded by `pivot_longer()` and `pivot_wider()`, respectively.
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+For now, let's look at columns `i1_1` through to `i1_4`: 
+
+``` {r}
+item %>% 
+  select(id:i1_4)
+```
+
+These four columns are in fact values of another variable (e.g., questions, items, tests, etc.)!
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+So we need to combine these four columns. This can be done easily with ``pivot_longer()``. This function has four main arguments:
+
+``` {r}
+pivot_longer(data = ,           cols = , 
+             names_to = " ",    values_to = " "
+             )
+```
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+So we need to combine these four columns. This can be done easily with ``pivot_longer()``. This function has four main arguments:
+
+``` {r}
+pivot_longer(data = ,           cols = , 
+             names_to = " ",    values_to = " "
+             )
+```
+
+So, let's give `pivot_longer()` the information it needs:
+
+``` {r}
+item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = i1_1:i1_4, 
+               names_to  = "items",    
+               values_to = "points"
+               )
+```
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+We can select columns to pivot using `dplyr::select` style. So, this also works:
+
+``` {r}
+item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id, 
+               names_to  = "items",    
+               values_to = "points"
+               )
+```
+
+\textcolor{gured}{EXERCISE}: What are some other ways to pick these columns?
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+Let's look back at how we name our columns:
+
+``` {r}
+item %>% 
+  select(id:i1_4)
+```
+
+Each item starts with "i" (which stands for "item"), followed by question numbers and options. 
+
+&nbsp;
+
+Now that `i1_1`, `i1_2` are values of the variable `items`, we run into one problem: These two numbers code different information. 
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+We can "break" these values (e.g., `i1_1`, `i1_2`) into smaller parts with the help of the following arguments:
+
+``` {r}
+item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id, 
+               names_to     = c("items", "choices"), 
+               names_sep    = "_", 
+               names_prefix = "i",  
+               values_to    = "points"
+               )
+```
+
+**NOTE**: `names_prefix` is used to remove matching strings from \textcolor{gured}{the start} of a variable name.
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+A slightly more complex take on the previous slide, with `names_pattern`:
+
+``` {r}
+item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id, 
+               names_to      = c("items", "choices"), 
+               names_pattern = "i(.)_(.)", 
+               values_to     = "points"
+               )
+```
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+But if this is a bit too much for you, there's always a helper. `seperate()` does the trick:
+
+``` {r}
+item_sm <- item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id, 
+               names_to      = "items", 
+               values_to     = "points"
+               ) %>% 
+  separate(col  = items, 
+           into = c("questions", "options") )
+```
+
+
+
+## Part I: ``pivot_longer()`` {.t}
+
+The opposite of `separate()` is of course `unite()`:
+
+``` {r}
+item_sm %>% 
+  unite(col = "items", c(questions, options), 
+        sep = "."
+        )
+```
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+While `pivot_longer()` lengthens data, `pivot_wider()` does the opposite. It "widens" data! Previously:
+
+``` {r}
+item_ln <- item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id,
+               names_to  = "items", 
+               values_to = "points")
+```
+
+Now, how can we widen `item_ln` which is in a long format?
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+We can use `pivot_wider()` to do that job:
+
+``` {r}
+pivot_wider(data = ,  names_from  = ,
+                      values_from = 
+           )
+```
+
+So, we can revert `item_ln` back to its original form:
+
+``` {r}
+item_ln %>% 
+  pivot_wider(names_from  = items,
+              values_from = points)
+```
+
+We use a <`tidy-select`> style to select columns (without a quotation mark).
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+Like `pivot_longer()`, the use case of `pivot_wider()` is much more than what you just saw!
+
+&nbsp;
+
+Previously:
+
+``` {r}
+item_ln <- item %>% 
+  select(id:i1_4) %>% 
+  pivot_longer(cols = !id, 
+               names_to     = c("items", "choices"), 
+               names_sep    = "_", 
+               names_prefix = "i",  
+               values_to    = "points"
+               )
+```
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+We can combine the two columns `items` and `choices` in `names_from`. `names_glue` tells `pivot_wider()` how we want the two columns to be combined:
+
+``` {r}
+item_ln %>% 
+  pivot_wider(names_from  = c(items, choices), 
+              values_from = points, 
+              names_glue = "i{items}_{choices}"
+              )
+```
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+Let's look at a slightly more challenging case with an existing data frame that comes with the `tidyverse` package:
+
+``` {r eval = TRUE}
+head(us_rent_income, n = 6)
+```
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+Suppose we want to widen `variable` with values from `estimate` and `moe`, we can do provide both columns to `values_from`:
+
+``` {r}
+us_rent_income %>% 
+  pivot_wider(names_from  = variable, 
+              values_from = c(estimate, moe)
+              )
+```
+
+Notice that `pivot_wider()` makes the column names by joining the two parts together for us.
+
+
+
+## Part II: ``pivot_wider()`` {.t}
+
+We can change how the column names are created with our friend `names_glue`:
+
+``` {r}
+us_rent_income %>% 
+  pivot_wider(names_from  = variable, 
+              values_from = c(estimate, moe),
+              names_glue  = "{variable}.{.value}"
+              )
+```
+
+Use `.value` to reference each of the two columns we provide to `values_from`.
+
+
+
+## What's the point in all of these? {.t}
+
+Let's illustrate this with `geom_point()`:
+
+``` {r}
+head(us_rent_income, n = 6)
+
+us_rent_income %>% 
+  ggplot(aes(x = estimate, y = moe)) +
+  geom_point()
+```
+
+This plot visualizes income and rent on the same plot because, for example, the column `estimate` happens to contain both sets of information. Ask yourself: Is this what you want?
+
+
+
+## What's the point in all of these? {.t}
+
+If all we ever want is to plot the relationships between `estimate` and `moe` of `income`, we can certainly go this route:
+
+``` {r}
+us_rent_income %>% 
+  filter(variable == "income") %>% 
+  ggplot(aes(x = estimate, y = moe)) +
+  geom_point()
+```
+
+
+
+## What's the point in all of these? {.t}
+
+But what if we wanted to depict the relationships between the estimates of income and those of rent? This means we need one column for `income.estimates` and the for `rent.estimates`:
+
+``` {r}
+us_rent_income %>% 
+  pivot_wider(names_from  = variable, 
+              values_from = c(estimate, moe),
+              names_glue  = "{variable}.{.value}") %>% 
+  ggplot(aes(x = income.estimate, y = rent.estimate)
+         ) +
+  geom_point()
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv")
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+
+``` {r}
+income_sm <- income %>% 
+  select(!c(`1800`:`1979`)
+         ) %>% 
+  filter(country %in% c("China", "Japan", "Malaysia",
+                        "Singapore", "Thailand")
+         )
+```
+
+**NOTE**: Since our column names do not begin with letters, we need back ticks (\` \`).
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+
+``` {r}
+income_ln <- income_sm %>% 
+  pivot_longer(cols = !country, 
+               names_to = "year", values_to = "gdp")
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+|   [5] **Extra** Create a line plot for each country.
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+|   [5] **Extra** Create a line plot for each country.
+
+``` {r}
+income_ln %>% 
+  ggplot(aes(x = year, y = gdp)) +
+  geom_line(aes(group = country, 
+                color = country) )
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+|   [5] **\textcolor{gured}{Extra}** Create a line plot for each country.
+|   [6] **\textcolor{gured}{Extra}** Widen the data frame `income_ln` back to its 
+|       original form.

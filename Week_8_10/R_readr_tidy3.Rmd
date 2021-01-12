@@ -1,0 +1,502 @@
+---
+title: "R: Tidy Data & Data Import 3"
+author: "Sakol Suethanapornkul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  beamer_presentation:
+    theme: Sakol
+    keep_tex: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+## Preamble {.t}
+
+So far, we have worked with various packages in `tidyverse`, from `dplyr`---through `ggplot2`---to `readr`. Through these packages, we have learned how to import into R, subset and manipulate, and then visualize data.
+
+&nbsp;
+
+Let's go through the exercise we saw at the end of the previous class once again to refresh our memory...
+
+```{r eval = TRUE, warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv")
+```
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+
+``` {r}
+income_sm <- income %>% 
+  select(!c(`1800`:`1979`)
+         ) %>% 
+  filter(country %in% c("China", "Japan", "Malaysia",
+                        "Singapore", "Thailand")
+         )
+```
+
+**NOTE**: Since our column names do not begin with letters, we need back ticks (\` \`).
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+
+
+
+## Exercise {.t}
+
+| Let's return to Income.csv. We will work through this exercise slowly.
+
+|   [1] Import Income.csv and name the data frame as `income`.
+|   [2] Create a new data frame consisting of country names and 
+|       years since 1980.
+|   [3] Select China, Japan, Malaysia, Singapore, and Thailand.
+|   [4] Pivot columns of years to a new variable "`year`" and values 
+|       of GDP to "`gdp`"
+
+``` {r}
+income_ln <- income_sm %>% 
+  pivot_longer(cols = !country, 
+               names_to = "year", values_to = "gdp")
+```
+
+
+
+## Quick review {.t}
+
+Recall that `pivot_longer` and `pivot_wider` are asymmetrical. Note how you select columns with these two functions.
+
+1) `pivot_longer`:
+
+``` {r}
+income_sm %>% 
+  pivot_longer(cols = !country, 
+               names_to = "year", values_to = "gdp")
+```
+
+&nbsp;
+
+2) `pivot_wider`:
+
+``` {r}
+income_ln %>% 
+  pivot_wider(names_from = year, values_from = gdp)
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+One important aspect we have not yet discussed is how to combine several data frames together!
+
+&nbsp;
+
+Before we do that, let's create two tibbles, one for each "class". We will have three columns: `id`, `class` and `height`. Can you remember how to create tibbles? 
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+Here is our tibble for class A: 
+
+``` {r eval = TRUE}
+cl_a <- tibble(id     = 1:5,
+               class  = rep("A", times = 5),
+               height = c(173, 176, 177, 180, 182) 
+               )
+cl_a
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+And this is for class B: 
+
+``` {r eval = TRUE}
+cl_b <- tibble(id     = 10:14,
+               class  = rep("B", times = 5),
+               height = c(167, 171, 172, 176, 178) 
+               )
+cl_b
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+Our two tibbles have the exact same columns (i.e., same column names). Combining them is easy, with `bind_rows()`:
+
+``` {r}
+class_tot <-  bind_rows(cl_a, cl_b)
+```
+
+&nbsp;
+
+Or we could "rewrite" our existing tibbles with:
+
+``` {r}
+cl_a <-  bind_rows(cl_a, cl_b)
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+Suppose our class A has another column `gender` which represents the gender of students:
+
+``` {r eval = TRUE}
+cl_a <- cl_a %>% 
+  mutate(gender = c("M", "F", "F", "F", "M") )
+
+cl_a
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+\textcolor{gured}{EXERCISE}: What will happen if we combine the first class (i.e., `cl_a`) with the second class (i.e., `cl_b`)?
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+\textcolor{gured}{ANSWER}: An empty cell in the column `gender` will be given `NA`.
+
+``` {r eval = TRUE}
+cl_a <- bind_rows(cl_a, cl_b)
+
+head(cl_a, n = 7)
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+But it's very much possible that our original tibbles may not have an "identification." For example: 
+
+Class A: 
+
+``` {r eval = TRUE}
+cl_a <- tibble(id     = 1:5,
+               height = c(173, 176, 177, 180, 182) )
+```
+
+&nbsp;
+
+Class B:
+
+``` {r eval = TRUE}
+cl_b <- tibble(id     = 10:14,
+               height = c(167, 171, 172, 176, 178) )
+```
+
+\textcolor{gured}{EXERCISE}: How can we combine them such that we know which class each part of a new tibble come from?
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+\textcolor{gured}{ANSWER}: We can name a new column with `.id`:
+
+``` {r eval = TRUE}
+cl <- bind_rows(.id = "class", "A" = cl_a, "B" = cl_b)
+
+head(cl, n = 7)
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+While `bind_rows()` binds tibbles by rows, `bind_cols()` does so by columns. 
+
+&nbsp;
+
+Let's look at an example.
+
+``` {r eval = TRUE}
+cl_a1 <- tibble(id     = 1:5,
+                class  = rep("A", times = 5),
+                height = c(173, 176, 177, 180, 182)
+                )
+
+cl_a2 <- tibble(gender = c("M", "F", "F", "F", "M"),
+                grade  = c(3.3, 3.4, 3.5, 3.8, 3.9)
+                )
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+In `bind_cols()`, we provide as arguments tibble names:
+
+&nbsp;
+
+``` {r eval = TRUE}
+bind_cols(cl_a1, cl_a2)
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+But `bind_cols()` can behave unexpectedly. Let's say we have the following tibbles:
+
+&nbsp;
+
+``` {r eval = TRUE}
+cl_a1 <- tibble(id     = 1:5,
+                class  = rep("A", times = 5),
+                height = c(173, 176, 177, 180, 182)
+                )
+
+cl_a2 <- tibble(id     = 1:5,
+                gender = c("M", "F", "F", "F", "M"),
+                grade  = c(3.3, 3.4, 3.5, 3.8, 3.9)
+                )
+```
+
+
+
+## Part I: `bind_rows()` and `bind_cols()` {.t}
+
+Go ahead and combine the two tibbles by columns:
+
+
+``` {r}
+bind_cols(cl_a1, cl_a2)
+```
+
+
+&nbsp;
+
+Let's apply what we have learned from `bind_rows()`. Do following codes fix the problem?
+
+
+``` {r}
+bind_cols(.id = "id_new", cl_a1, cl_a2)
+
+bind_cols(.id = "id_new", "1" = cl_a1, "2" = cl_a2)
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+It's time we talked about some other important functions that help us deal with **relational data** in a more sophisticated way.
+
+&nbsp;
+
+To start, we look back at the two tibbles:
+
+
+
+## Part II: `*_join()` {.t}
+
+``` {r eval = TRUE}
+head(cl_a1, n = 3)
+
+head(cl_a2, n = 3)
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+Even with this simple example, we can see one critical element of **relational data**: `id` links the two tibbles together. This element is referred to as a "key." 
+
+
+
+## Part II: `*_join()` {.t}
+
+`id` serves as a **primary key** that identifies unique observations in `cl_a1`. It also is a **foreign key** to `cl_a2` linking the two tibbles together.
+
+&nbsp;
+
+We can use `left_join()` to combine the two tibbles together:
+
+``` {r}
+left_join(x, y, 
+          by = " ", 
+          suffix = c(" ", " "))
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+So, to join the two tibbles together, we use:
+
+``` {r eval = TRUE}
+left_join(cl_a1, cl_a2, by = "id")
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+If you want to "rewrite" `cl_a1`, you can do that with:
+
+``` {r eval = TRUE}
+cl_a1 <- cl_a1 %>% 
+  left_join(cl_a2, by = "id")
+
+cl_a1
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+`left_join()` keeps **all observations in x** (which is `cl_a1` in our case). Let's say our other tibble has information from students no. 4 to 8.
+
+``` {r eval = TRUE}
+cl_a2 <- tibble(id     = 4:8,
+                gender = c("M", "F", "F", "F", "M"),
+                grade  = c(3.3, 3.4, 3.5, 3.8, 3.9)
+                )
+```
+
+&nbsp;
+
+\textcolor{gured}{EXERCISE}: What will happen when we run the following code?
+
+``` {r}
+left_join(cl_a1, cl_a2, by = "id")
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+The opposite of `left_join()` is `right_join()` which keeps **all observations in y**. 
+
+&nbsp;
+
+``` {r eval = TRUE, echo = FALSE}
+cl_a1 <- tibble(id     = 1:5,
+                class  = rep("A", times = 5),
+                height = c(173, 176, 177, 180, 182)
+                )
+
+cl_a2 <- tibble(id     = 4:8,
+                gender = c("M", "F", "F", "F", "M"),
+                grade  = c(3.3, 3.4, 3.5, 3.8, 3.9)
+                )
+```
+
+
+``` {r eval = TRUE}
+right_join(cl_a1, cl_a2, by = "id")
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+There is another kind of mutating joins, which is `inner_join()`. It keeps only observations that both tibbles share:
+
+``` {r eval = TRUE}
+inner_join(cl_a1, cl_a2, by = "id")
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+The opposite of `inner_join()` is `full_join()` which keeps **all observations in x and y**.
+
+``` {r eval = TRUE}
+full_join(cl_a1, cl_a2, by = "id")
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+In many cases, you may have duplicate keys. For instance,
+
+``` {r eval = TRUE}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     2, "x3",
+     1, "x4"
+  )
+
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2"
+  )
+```
+
+
+
+## Part II: `*_join()` {.t}
+
+Don't worry. When you join these tibbles (i.e., `x` and `y`) together, one is "expanded":
+
+``` {r eval = TRUE}
+left_join(x, y, by = "key")
+```
+
+
+
+## Q \& A {.t}
+

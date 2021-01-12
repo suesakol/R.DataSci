@@ -1,0 +1,500 @@
+---
+title: "R: Tidy Data & Data Import"
+author: "Sakol Suethanapornkul"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  beamer_presentation:
+    theme: Sakol
+    keep_tex: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+
+## Preamble {.t}
+
+Data come in various formats. Some of the most common ones are:
+
+- spreadsheet files (\textcolor{gured}{.xlsx} or \textcolor{gured}{.csv});
+- plain text files (\textcolor{gured}{.txt}); or
+- SPSS files (\textcolor{gured}{.sav}).
+
+&nbsp;
+
+Thus far, we have worked with data that are part of R packages. But in real-world contexts, we often work with "our" data that are in one of the above formats. How do we get those data into R?
+
+
+
+## Preamble {.t}
+
+In this part, we will learn how to read in rectangular files (i.e., ones that consist of rows and columns) into R with ``readr`` 
+
+&nbsp;
+
+``readr`` is part of ``tidyverse``. So, before we go any further, let's call the package.
+
+``` {r eval = TRUE, warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+It is important that our data be tidy. This ensures that we can apply transformations to our data using tools in the ``tidyverse`` package.
+
+&nbsp;
+
+\textcolor{gured}{EXERCISE}: What do tidy data have in common?
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+Principles of tidy data:
+
+- Each variable must have its own column;
+- Each observation must have its own row; and
+- Each value must have its own cell.
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+Principles of tidy data:
+
+- Each variable must have its own column;
+- Each observation must have its own row; and
+- Each value must have its own cell.
+
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "30%", out.width = "\\textwidth"}
+knitr::include_graphics("Figure/tidy1.png")
+```
+
+Credit: [R for Data Science](https://r4ds.had.co.nz/tidy-data.html)
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+\textcolor{gured}{EXERCISE}: Look carefully at each spreadsheet. Is it tidy? If not, what can we do to fix it?
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+\textcolor{gured}{EXERCISE}: Look carefully at each spreadsheet. Is it tidy? If not, what can we do to fix it?
+
+[1]
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "50%", out.width = "80%"}
+knitr::include_graphics("Figure/untidy1.png")
+```
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+\textcolor{gured}{EXERCISE}: Look carefully at each spreadsheet. Is it tidy? If not, what can we do to fix it?
+
+[2]
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "40%", out.width = "88%"}
+knitr::include_graphics("Figure/untidy2.png")
+```
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+\textcolor{gured}{EXERCISE}: Look carefully at each spreadsheet. Is it tidy? If not, what can we do to fix it?
+
+[3]
+
+``` {r echo = FALSE, eval = TRUE, fig.align = "center", out.height = "40%", out.width = "70%"}
+knitr::include_graphics("Figure/untidy3.png")
+```
+
+
+
+## Part I: Pro Tip #2 {.t}
+
+Tidy data aren't just about R (though they help make vectorized operations in R shine). 
+
+&nbsp;
+
+So, make sure your data are tidy everywhere (e.g., in Excel spreadsheet etc.)
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+Now that we know how tidy data look, let's work our way through getting these data into R!
+
+&nbsp;
+
+We will use ``read_csv()`` to practice data import. Once you master it, you can apply the knowledge to other kinds of files.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{first} thing we need is a file name:
+
+``` {r}
+income <- read_csv(file = "Income.csv")
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{first} thing we need is a file name:
+
+``` {r}
+income <- read_csv(file = "Income.csv")
+```
+
+- But if that file is in a different folder:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv")
+```
+
+**NOTE**: Use ``getwd()`` to see your current directory.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``getwd()`` returns the absolute path to our current directory, which we can use in ``read_csv()``
+
+&nbsp;
+
+But this is generally not recommended. Assuming that you always have a folder called "Data" in any of your R projects, it's better to use a relative path when you read in a file:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv")
+```
+
+**NOTE**: Use forward slashes (/) for path, regardless of your computer's OS (Mac or Windows).
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{second} thing we need is column names:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   col_names = TRUE )   #default
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{second} thing we need is column names:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   col_names = TRUE )   #default
+```
+
+- If column name is missing, use ``FALSE``:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   col_names = FALSE )  
+```
+
+\textcolor{gured}{EXERCISE}: what does ``col_names = FALSE`` do?
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+Alternatively, ``col_names`` accepts a character vector, which will be used as column names: 
+
+``` {r}
+#DO NOT RUN
+income <- read_csv(file = "./Data/Income.csv",
+                   col_names = c("year", 
+                                 "option", 
+                                 "status") 
+                   )  
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{third} thing we need is NAs:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   na = c("", "NA") ) #default  
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``read_csv()`` works with comma separated files (i.e., the ones that end with \textcolor{gured}{.csv}).
+
+- The \textcolor{gured}{third} thing we need is NAs:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   na   = c("", "NA") ) #default  
+```
+
+- If there's no missing values, you can omit this argument or:
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   na   = character() )  
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+But if your missing value is coded as something else (e.g., 999), pass that number to ``na`` as a character string:
+
+``` {r}
+#EXAMPLE
+income <- read_csv(file = "./Data/Income.csv",
+                   na   = c("618", "715", "775") )  
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+If you're curious about how ``read_csv()`` works behind the scenes, check out [this site](https://r4ds.had.co.nz/data-import.html). This understanding will help us with the next few slides.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+Thus far, we have ignored the message in red that ``read_csv()`` prints out to the console. But now we are ready to talk about it.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+Thus far, we have ignored the message in red that ``read_csv()`` prints out to the console. But now we are ready to talk about it.
+
+&nbsp;
+
+``read_csv()`` (and other functions in ``readr``) automatically guesses the type of each column when it reads in files.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+``readr`` uses a number of heuristics to guess what each column is. But these heuristics can fail with a large file (1000 rows+). 
+
+&nbsp;
+
+For example,
+
+``` {r}
+challenge <- read_csv(readr_example("challenge.csv") )
+```
+
+\textcolor{gured}{NOTE}: ``readr_example()`` finds the path to one of the files included with the package.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+If we look at the message, we see that the ``x`` column is parsed as a double vector, and the ``y`` column, a logical vector.
+
+&nbsp;
+
+\textcolor{gured}{EXERCISE}: View the data frame. What do you see? What is going on with ``y``?
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+If we look at the message, we see that the ``x`` column is parsed as a double vector, and the ``y`` column, a logical vector.
+
+&nbsp;
+
+Looking back at the console, we see warning which tells us what went wrong.
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+So, to fix this problem, you can provide specific column type to ``read_csv()`` with ``col_types``:
+
+``` {r}
+challenge <- read_csv(readr_example("challenge.csv") 
+                      col_types = cols(
+                        x = col_double(),
+                        y = col_date() 
+                        #from y = col_logical()
+                        )
+                      )
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+We can provide different types of columns to ``col_types``. 
+
+For instance, if we want to be explicit about column types in our ``income`` data set, we can treat country names as characters, while leaving all the other columns as doubles.
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   col_types = cols(
+                     .default = col_double(),
+                     country  = col_character()
+                     )
+                   )
+```
+
+
+
+## Part II: ``read_csv()`` {.t}
+
+\textcolor{gured}{EXERCISE}: What will happen if we run this code?
+
+``` {r}
+income <- read_csv(file = "./Data/Income.csv",
+                   col_types = cols(
+                     .default = col_double()
+                     )
+                   )
+```
+
+
+
+## Part III: Extra Bits {.t}
+
+How to...
+
+- read csv files from the Internet (e.g., [this site](https://www.stats.govt.nz/large-datasets/csv-files-for-download/))
+
+
+
+## Part III: Extra Bits {.t}
+
+How to...
+
+- read csv files from the Internet (e.g., [this site](https://www.stats.govt.nz/large-datasets/csv-files-for-download/))
+
+``` {r}
+ent_survey <- read_csv(file = "html-link",
+                       col_types = cols(
+                         .default = col_character()
+                         ) 
+                       )
+```
+
+
+
+## Part III: Extra Bits {.t}
+
+How to...
+
+- read csv files from the Internet (e.g., [this site](https://www.stats.govt.nz/large-datasets/csv-files-for-download/))
+
+- import tab-delimited files (e.g., [this site](http://courses.washington.edu/b517/Datasets/datasets.html))
+
+
+
+## Part III: Extra Bits {.t}
+
+How to...
+
+- read csv files from the Internet (e.g., [this site](https://www.stats.govt.nz/large-datasets/csv-files-for-download/))
+
+- import tab-delimited files (e.g., [this site](http://courses.washington.edu/b517/Datasets/datasets.html))
+
+``` {r}
+mri <- read_delim(file  = "html-link",
+                  delim = "\t")
+
+#or
+
+mri <- read_table(file  = "html-link")
+```
+
+<!-- http://courses.washington.edu/b517/Datasets/MRI.txt -->
+
+
+
+## Part IV: ``write_csv()`` {.t}
+
+After we finish wrangling with data frames, we may want to write them back to disk. ``readr`` offers a useful function ``write_csv()`` for that purpose!
+
+
+
+## Part IV: ``write_csv()`` {.t}
+
+After we finish wrangling with data frames, we may want to write them back to disk. ``readr`` offers a useful function ``write_csv()`` for that purpose!
+
+- The \textcolor{gured}{first} argument is a named data frame
+- The \textcolor{gured}{second} argument is a file name
+
+``` {r}
+write_csv(income, "GDP.csv")
+```
+
+Check out [this page](https://readr.tidyverse.org/reference/write_delim.html) for more information.
+
+
+
+## Part IV: ``write_csv()`` {.t}
+
+To put a newly created file in a folder different from a current working space, use:
+
+``` {r}
+write_csv(income, "./Data/GDP.csv")
+```
+
+For other types of files, you can use ``write_delim()``:
+
+``` {r}
+write_delim(income, "GDP.csv", 
+            delim = "\t")
+```
+
+
+
+## Wrap-up {.t}
+
+In this part, we have discussed the following functions:
+
+- ``read_csv()``;
+- ``read_delim()``; and
+- ``write_csv()``
+
+&nbsp;
+
+We have also learned how to:
+
+- specify column types;
+- provide column names; and
+- read in files from the Internet
